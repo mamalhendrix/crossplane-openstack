@@ -1,0 +1,6 @@
+// config.json
+{
+  "auth_url": "https://auth.openstack.example/",
+  "application_credential_id": "123456789",
+  "application_credential_secret": "secret-key"
+}
