@@ -1,0 +1,42 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xopenstackclusters.infrastructure.example.com
+spec:
+  group: infrastructure.example.com
+  names:
+    kind: XOpenStackCluster
+    plural: xopenstackclusters
+  claimNames:
+    kind: OpenStackClusterClaim
+    plural: openstackclusterclaims
+  versions:
+  - name: v1alpha1
+    served: true
+    referenceable: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            required:
+              - tenantName
+              - masterCount
+              - workerCount
+              - subnetCIDR
+            properties:
+              tenantName:
+                type: string
+                description: "Name of the tenant, used to prefix resources."
+              masterCount:
+                type: integer
+                minimum: 1
+                default: 3
+              workerCount:
+                type: integer
+                minimum: 1
+                default: 3
+              subnetCIDR:
+                type: string
+                description: "The private CIDR block for the tenant's network."
