@@ -1,8 +1,9 @@
 # crossplane-openstack
-imagin we have multi tenant projects that needs kubernetes cluster for each tenant. 
-we will use crossplane instead of terraform to create N-master and Y-workers on the openstack. with a fast and reliable way. so lets dig in :)
+imaging we have multi tenant projects that needs kubernetes cluster for each tenant.
+we will use crossplane instead of terraform to create N-masters and Y-workers on the openstack. with a fast and reliable way. so lets dig in :)
 
 **1- we need a kubernetes cluster**
+
 **2- install the crossplane addon:**
 
 kubectl create namespace crossplane-system
@@ -13,18 +14,21 @@ helm install crossplane --namespace crossplane-system crossplane-stable/crosspla
 DOCUMENT:
 **** https://artifacthub.io/packages/helm/crossplane/crossplane
 ------------------------------------------------------------------------------------------------------------------------------------------
-3- we need to add two functions:
+3- install crossplane cli
 
-crossplane-contrib-function-go-templating
-crossplane-contrib-function-patch-and-transform
+curl -sfL "https://cli.crossplane.io/install.sh" | sh
 
-3-1 install the **crossplane-contrib-function-go-templating**  (if you live in iran you should use any anti sancetions solutions , i used "BEGZAR" 185.55.226.26 , 185.55.225.25 , 185.55.224.24 )
-****install the up cli
+DOCUMENT:
+**https://docs.crossplane.io/cli/latest/**
+
+4- install functions , **crossplane-contrib-function-go-templating** and **crossplane-contrib-function-patch-and-transform** . the easiest way is to use up cli tool
+(if you live in iran you should use any anti sancetions solutions , i used "BEGZAR" 185.55.226.26 , 185.55.225.25 , 185.55.224.24 )
 
 curl -sL https://cli.upbound.io | sh
 
 up ctp function install xpkg.upbound.io/crossplane-contrib/function-go-templating:v0.12.1
 up ctp function install xpkg.upbound.io/crossplane-contrib/function-patch-and-transform:v0.10.7
+up dep add 'xpkg.upbound.io/crossplane-contrib/provider-openstack:v0.9.0'
 
 ****check the installation:
 
