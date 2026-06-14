@@ -1,0 +1,10 @@
+apiVersion: infrastructure.example.com/v1alpha1
+kind: OpenStackClusterClaim
+metadata:
+  name: team-alpha-k8s
+  namespace: tenant-team-alpha
+spec:
+  tenantName: alpha
+  masterCount: 1
+  workerCount: 1
+  subnetCIDR: "10.240.0.0/24"
