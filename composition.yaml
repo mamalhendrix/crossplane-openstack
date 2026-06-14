@@ -1,0 +1,189 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: openstack-kubespray-cluster
+  labels:
+    provider: openstack
+spec:
+  compositeTypeRef:
+    apiVersion: infrastructure.example.com/v1alpha1
+    kind: XOpenStackCluster
+  mode: Pipeline
+  pipeline:
+
+  # --- STEP 1: CREATE BASE NETWORK INFRASTRUCTURE ---
+  - step: generate-base-infra
+    functionRef:
+      name: crossplane-contrib-function-go-templating
+    input:
+      apiVersion: gotemplating.fn.crossplane.io/v1beta1
+      kind: GoTemplate
+      source: Inline
+      inline:
+        template: |-
+          ---
+          apiVersion: networking.openstack.crossplane.io/v1alpha1
+          kind: NetworkV2
+          metadata:
+            name: {{ .observed.composite.resource.spec.tenantName }}-net
+            annotations:
+              gotemplating.fn.crossplane.io/composition-resource-name: {{ .observed.composite.resource.spec.tenantName }}-net
+          spec:
+            providerConfigRef:
+              name: openstack
+            forProvider:
+              name: {{ .observed.composite.resource.spec.tenantName }}-network
+              adminStateUp: true
+          ---
+          apiVersion: networking.openstack.crossplane.io/v1alpha1
+          kind: SubnetV2
+          metadata:
+            name: {{ .observed.composite.resource.spec.tenantName }}-subnet
+            annotations:
+              gotemplating.fn.crossplane.io/composition-resource-name: {{ .observed.composite.resource.spec.tenantName }}-subnet
+          spec:
+            providerConfigRef:
+              name: openstack
+            forProvider:
+              networkIdRef:
+                name: {{ .observed.composite.resource.spec.tenantName }}-net
+              cidr: {{ .observed.composite.resource.spec.subnetCIDR }}
+              ipVersion: 4
+              dnsNameservers:
+                - "8.8.8.8"
+          ---
+          apiVersion: networking.openstack.crossplane.io/v1alpha1
+          kind: RouterV2
+          metadata:
+            name: {{ .observed.composite.resource.spec.tenantName }}-router
+            annotations:
+              # FIXED: Kept this completely clean and uniform with the rest
+              gotemplating.fn.crossplane.io/composition-resource-name: {{ .observed.composite.resource.spec.tenantName }}-router
+          spec:
+            providerConfigRef:
+              name: openstack
+            forProvider:
+              name: {{ .observed.composite.resource.spec.tenantName }}-router
+              adminStateUp: true
+              externalNetworkId: "external"
+          ---
+          apiVersion: networking.openstack.crossplane.io/v1alpha1
+          kind: RouterInterfaceV2
+          metadata:
+            name: {{ .observed.composite.resource.spec.tenantName }}-router-interface
+            annotations:
+              gotemplating.fn.crossplane.io/composition-resource-name: {{ .observed.composite.resource.spec.tenantName }}-router-interface
+          spec:
+            providerConfigRef:
+              name: openstack
+            forProvider:
+              routerIdRef:
+                name: {{ .observed.composite.resource.spec.tenantName }}-router
+              subnetIdRef:
+                name: {{ .observed.composite.resource.spec.subnetCIDR }}
+
+  # --- STEP 2: COMPILE NODES USING RUNTIME INFRASTRUCTURE CHECK ---
+  - step: generate-compute-nodes
+    functionRef:
+      name: crossplane-contrib-function-go-templating
+    input:
+      apiVersion: gotemplating.fn.crossplane.io/v1beta1
+      kind: GoTemplate
+      source: Inline
+      inline:
+        template: |-
+          {{ $tenant := .observed.composite.resource.spec.tenantName }}
+          {{ $networkKey := printf "%s-net" $tenant }}
+          {{ $subnetKey := printf "%s-subnet" $tenant }}
+
+          {{ $netUUID := "" }}
+          {{ $subnetReady := false }}
+
+          # 1. Verify Network Status Allocation
+          {{ if hasKey .observed.resources $networkKey }}
+            {{ $networkObj := index .observed.resources $networkKey }}
+            {{ if hasKey $networkObj "resource" }}
+              {{ if hasKey $networkObj.resource "status" }}
+                {{ if hasKey $networkObj.resource.status "atProvider" }}
+                  {{ if hasKey $networkObj.resource.status.atProvider "id" }}
+                    {{ $netUUID = $networkObj.resource.status.atProvider.id }}
+                  {{ end }}
+                {{ end }}
+              {{ end }}
+            {{ end }}
+          {{ end }}
+
+          # 2. Verify Subnet Status Activation
+          {{ if hasKey .observed.resources $subnetKey }}
+            {{ $subnetObj := index .observed.resources $subnetKey }}
+            {{ if hasKey $subnetObj "resource" }}
+              {{ if hasKey $subnetObj.resource "status" }}
+                {{ if hasKey $subnetObj.resource.status "atProvider" }}
+                  {{ if hasKey $subnetObj.resource.status.atProvider "id" }}
+                    {{ $subnetReady = true }}
+                  {{ end }}
+                {{ end }}
+              {{ end }}
+            {{ end }}
+          {{ end }}
+
+          # ONLY execute virtual machine templates if BOTH the net UUID and subnet are completely active
+          {{ if and (ne $netUUID "") $subnetReady }}
+            {{ $masters := int .observed.composite.resource.spec.masterCount }}
+            {{ range $i := until $masters }}
+          {{ printf "---" }}
+          apiVersion: compute.openstack.crossplane.io/v1alpha1
+          kind: InstanceV2
+          metadata:
+            name: {{ $tenant }}-master-{{ $i }}
+            annotations:
+              gotemplating.fn.crossplane.io/composition-resource-name: {{ $tenant }}-master-{{ $i }}
+          spec:
+            providerConfigRef:
+              name: openstack
+            forProvider:
+              name: {{ $tenant }}-master-{{ $i }}
+              imageName: "ubuntu-init"
+              flavorName: "m1.medium"
+              userData: |
+                #cloud-config
+                user: ubuntu
+                password: thisunsafe
+                chpasswd: { expire: False }
+                ssh_pwauth: True
+              network:
+                - uuid: {{ $netUUID }}
+            writeConnectionSecretToRef:
+              namespace: crossplane-system
+              name: {{ $tenant }}-master-{{ $i }}-connection
+            {{ end }}
+
+            {{ $workers := int .observed.composite.resource.spec.workerCount }}
+            {{ range $i := until $workers }}
+          {{ printf "---" }}
+          apiVersion: compute.openstack.crossplane.io/v1alpha1
+          kind: InstanceV2
+          metadata:
+            name: {{ $tenant }}-worker-{{ $i }}
+            annotations:
+              gotemplating.fn.crossplane.io/composition-resource-name: {{ $tenant }}-worker-{{ $i }}
+          spec:
+            providerConfigRef:
+              name: openstack
+            forProvider:
+              name: {{ $tenant }}-worker-{{ $i }}
+              imageName: "ubuntu-init"
+              flavorName: "m1.large"
+              userData: |
+                #cloud-config
+                user: ubuntu
+                password: thisunsafe
+                chpasswd: { expire: False }
+                ssh_pwauth: True
+              network:
+                - uuid: {{ $netUUID }}
+            writeConnectionSecretToRef:
+              namespace: crossplane-system
+              name: {{ $tenant }}-worker-{{ $i }}-connection
+            {{ end }}
+          {{ end }}
