@@ -97,3 +97,9 @@ kubectl get providers
 kubectl get ProviderConfig
 kubectl get composition
 kubectl get function
+
+------------------------------------------------------------------------------------------------------------------------------------------
+IMPORTANT NOTE:
+i used ubuntu-cloud-init image in the openstack named ubuntu-init , change the image name in the composition.yaml with your own image name.
+imageName: "ubuntu-init"
+
