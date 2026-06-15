@@ -54,11 +54,8 @@ kubectl get function
 
 **you should see:**
 
-NAME                                              INSTALLED   HEALTHY   PACKAGE                                                                      AGE
+<img width="1670" height="108" alt="image" src="https://github.com/user-attachments/assets/0c2cb87b-0bd9-4c6a-aeb0-2b8c9556191b" />
 
-crossplane-contrib-function-go-templating         True        True      xpkg.crossplane.io/crossplane-contrib/function-go-templating:v0.12.1         108m
-
-crossplane-contrib-function-patch-and-transform   True        True      xpkg.crossplane.io/crossplane-contrib/function-patch-and-transform:v0.10.7   6h17m
 
 ------------------------------------------------------------------------------------------------------------------------------------------
 
