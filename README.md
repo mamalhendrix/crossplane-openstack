@@ -81,7 +81,7 @@ kubectl get composition
 
 kubectl apply -f tenant-claim.yaml
 
-kubectl get instancev2s.compute.openstack.crossplane.io
+kubectl get instancev2s
 
 ------------------------------------------------------------------------------------------------------------------------------------------
 **usefull commands:**
