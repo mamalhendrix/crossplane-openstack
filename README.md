@@ -40,7 +40,7 @@ kubectl get providerrevisions
 
 **crossplane-contrib-function-go-templating** and **crossplane-contrib-function-patch-and-transform** . the easiest way is to use up cli tool**
 
-**(if you live in iran you should use any anti sancetions solutions , i used "BEGZAR" 185.55.226.26 , 185.55.225.25 , 185.55.224.24 )**
+**(if you live in iran you should use any anti sancetion solutions , i used "BEGZAR" 185.55.226.26 , 185.55.225.25 , 185.55.224.24 )**
 
 curl -sL https://cli.upbound.io | sh
 
