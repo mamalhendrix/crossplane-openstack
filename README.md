@@ -103,7 +103,12 @@ kubectl get composition
 kubectl get function
 
 ------------------------------------------------------------------------------------------------------------------------------------------
-IMPORTANT NOTE:
-i used ubuntu-cloud-init image in the openstack named ubuntu-init , change the image name in the composition.yaml with your own image name.
-imageName: "ubuntu-init"
+IMPORTANT NOTES:
 
+**i used ubuntu-cloud-init image in the openstack named ubuntu-init , change the imageName section in the composition.yaml with your own image name.**
+
+**change the user and password of the created vm in userData section in the composition.yaml in the.**
+
+**add metadata to your cloud-init image with the key and value:**
+
+img_config_drive:mandatory
