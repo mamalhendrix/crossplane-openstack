@@ -76,3 +76,11 @@ kubectl apply -f composition.yaml
 kubectl get composition
 
 ------------------------------------------------------------------------------------------------------------------------------------------
+
+**9- claim the tenant**
+
+kubectl apply -f tenant-claim.yaml
+
+kubectl get instancev2s.compute.openstack.crossplane.io
+
+------------------------------------------------------------------------------------------------------------------------------------------
