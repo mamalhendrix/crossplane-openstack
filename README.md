@@ -84,3 +84,16 @@ kubectl apply -f tenant-claim.yaml
 kubectl get instancev2s.compute.openstack.crossplane.io
 
 ------------------------------------------------------------------------------------------------------------------------------------------
+**usefull commands:**
+
+kubectl get provider -n crossplane-system
+kubectl get instancev2s
+kubectl get SubnetV2
+kubectl get NetworkV2
+kubectl get RouterV2
+kubectl get crds | grep openstack
+
+kubectl get providers
+kubectl get ProviderConfig
+kubectl get composition
+kubectl get function
