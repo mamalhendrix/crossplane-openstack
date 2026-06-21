@@ -7,11 +7,15 @@ we will use crossplane instead of terraform to create N-masters and Y-workers on
 **2- install the crossplane addon:**
 
 kubectl create namespace crossplane-system
+
 helm repo add crossplane-stable https://charts.crossplane.io/stable
+
 helm repo update
+
 helm install crossplane --namespace crossplane-system crossplane-stable/crossplane
 
 DOCUMENT:
+
 **** https://artifacthub.io/packages/helm/crossplane/crossplane
 
 ------------------------------------------------------------------------------------------------------------------------------------------
