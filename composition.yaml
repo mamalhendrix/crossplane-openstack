@@ -80,7 +80,8 @@ spec:
               routerIdRef:
                 name: {{ .observed.composite.resource.spec.tenantName }}-router
               subnetIdRef:
-                name: {{ .observed.composite.resource.spec.subnetCIDR }}
+                #name: {{ .observed.composite.resource.spec.subnetCIDR }}
+                name: {{ .observed.composite.resource.spec.tenantName }}-subnet
 
   # --- STEP 2: COMPILE NODES USING RUNTIME INFRASTRUCTURE CHECK ---
   - step: generate-compute-nodes
