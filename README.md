@@ -63,9 +63,9 @@ kubectl get function
 
 ------------------------------------------------------------------------------------------------------------------------------------------
 
-**6- edit and update the config.json with your openstack credentials and create a secret.**
+**6- edit and update the ProviderConfig.yaml with your openstack credentials**
 
-kubectl create secret generic provider-openstack-config   --from-file=config=config.json   --namespace crossplane-system
+kubectl apply -f ProviderConfig.yaml
 
 ------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -95,15 +95,25 @@ kubectl get instancev2s
 **usefull commands:**
 
 kubectl get provider -n crossplane-system
+
+kubectl get managed
+
 kubectl get instancev2s
+
 kubectl get SubnetV2
+
 kubectl get NetworkV2
+
 kubectl get RouterV2
+
 kubectl get crds | grep openstack
 
 kubectl get providers
+
 kubectl get ProviderConfig
+
 kubectl get composition
+
 kubectl get function
 
 ------------------------------------------------------------------------------------------------------------------------------------------
