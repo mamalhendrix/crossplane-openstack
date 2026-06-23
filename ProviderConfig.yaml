@@ -9,15 +9,15 @@ stringData:
     clouds:
       default:
         auth:
-          auth_url: [openstack.example.com](https://openstack.example.com:5000/v3)
-          username: demo
-          password: supersecret
-          project_name: admin
+            "auth_url": "https://auth.openstack.example/",
+             "insecure": "true",
+             "application_credential_id": "123456789",
+             "application_credential_secret": "secret-key"
           user_domain_name: Default
           project_domain_name: Default
-        region_name: RegionOne
-        interface: public
-        identity_api_version: 3
+        # region_name: RegionOne
+        # interface: public
+        # identity_api_version: 3
 ---
 apiVersion: openstack.crossplane.io/v1beta1
 kind: ProviderConfig
